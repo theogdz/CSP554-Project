@@ -15,9 +15,12 @@ start = time.time()
 
 struct = StructType().add("vader", DoubleType(), True).add("textblob",DoubleType(), True).add("negative",IntegerType(), True).add("positive",IntegerType(), True)
 
-data = spark.read.schema(struct).csv('hdfs:///user/hadoop/input_tensor.csv')    # data is an RDD
-
-parsedData = data.map(parsePoint)
+data = spark.read.csv('hdfs:///user/project/input_tensor.csv',header=True)    # data is an RDD
+data = data.withColumn("label", (data.positive*2)-1)
+col = ['positive','negative']
+data = data.drop(*col)
+print(data.count())
+parsedData = data
 
 # Build the model
 model = LogisticRegressionWithLBFGS.train(parsedData)
@@ -27,7 +30,7 @@ labelsAndPreds = parsedData.map(lambda p: (p.label, model.predict(p.features)))
 trainErr = labelsAndPreds.filter(lambda lp: lp[0] != lp[1]).count() / float(parsedData.count())
 print("Training Error = " + str(trainErr))
 
-model.save(sc, "mllib_logistic")
+model.save(sc, "mllib_logistic.model")
 
 runtime = time.time() - start
 print(runtime)
