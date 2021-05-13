@@ -48,17 +48,17 @@ pythonSchema = StructType() \
           .add("ts", StringType(), True)
           
           
-awsAccessKeyId = "AKIA3QG5W4IX75ORCYOY" # update the access key
-awsSecretKey = "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"   # update the secret key
-kinesisStreamName = "CSP554"  # update the kinesis stream name
+awsAccessKeyId = "" # update the access key
+awsSecretKey = ""   # update the secret key
+kinesisStreamName = ""  # update the kinesis stream name
 
 
 kinesisRegion = "us-east-2"
 
 kinesis_client = boto3.client('kinesis', 
-                                  region_name='us-east-2',  # enter the region
-                                  aws_access_key_id='AKIA3QG5W4IX75ORCYOY',  # fill your AWS access key id
-                                  aws_secret_access_key='Go7F/RA2FJAls5BuH3yYO5EL39sU9+ZXpKB2gXzt')  # fill you aws secret access key
+                                  region_name='2',  # enter the region
+                                  aws_access_key_id='',  # fill your AWS access key id
+                                  aws_secret_access_key='')  # fill you aws secret access key
     
 
 spark.sql("select cast(data as string) from tweets")
@@ -74,7 +74,7 @@ tweets = (tweets.withColumn('id', getID(col("data")))
                .withColumn('Tweet', getTweet(col("data")))
          ).toPandas()       # tweets is now a pandas df 
 
-convert tweets pandas df into input tensor for logistic regression model
+# convert tweets pandas df into input tensor for logistic regression model
     
 # df = pd.read_csv()
 input_tensor = create_input_tensor(tweets)
