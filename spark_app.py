@@ -3,9 +3,8 @@
 import pickle
 import sys
 import time
-
-import pandas
-import text
+import numpy as np
+import pandas as pd
 from pyspark.mllib.classification import (LogisticRegressionModel,
                                           LogisticRegressionWithLBFGS)
 from pyspark.mllib.regression import LabeledPoint
@@ -43,42 +42,26 @@ def create_input_tensor(data):
 
     return input_tensor
 
-
 pythonSchema = StructType() \
           .add("id", StringType(), True) \
           .add("tweet", StringType(), True) \
           .add("ts", StringType(), True)
           
           
-awsAccessKeyId = "" # update the access key
-awsSecretKey = ""   # update the secret key
-kinesisStreamName = ""  # update the kinesis stream name
+awsAccessKeyId = "AKIA3QG5W4IX75ORCYOY" # update the access key
+awsSecretKey = "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"   # update the secret key
+kinesisStreamName = "CSP554"  # update the kinesis stream name
 
 
-kinesisRegion = ""
+kinesisRegion = "us-east-2"
 
+kinesis_client = boto3.client('kinesis', 
+                                  region_name='us-east-2',  # enter the region
+                                  aws_access_key_id='AKIA3QG5W4IX75ORCYOY',  # fill your AWS access key id
+                                  aws_secret_access_key='Go7F/RA2FJAls5BuH3yYO5EL39sU9+ZXpKB2gXzt')  # fill you aws secret access key
+    
 
-kinesisDF = spark \
-  .readStream \
-  .format("kinesis") \
-  .option("streamName", kinesisStreamName)\
-  .option("region", kinesisRegion) \
-  .option("initialPosition", "LATEST") \
-  .option("format", "json") \
-  .option("awsAccessKey", awsAccessKeyId)\
-  .option("awsSecretKey", awsSecretKey) \
-  .option("inferSchema", "true") \
-  .load()
-
-df = kinesisDF \
-  .writeStream \
-  .format("memory") \
-  .outputMode("append") \
-  .queryName("tweets")  \
-  .start()
-
-tweets = spark.sql("select cast(data as string) from tweets")
-
+spark.sql("select cast(data as string) from tweets")
 
 # Define your function
 getID = UserDefinedFunction(lambda x: parse_tweet(x)[0], StringType())
@@ -91,25 +74,25 @@ tweets = (tweets.withColumn('id', getID(col("data")))
                .withColumn('Tweet', getTweet(col("data")))
          ).toPandas()       # tweets is now a pandas df 
 
-# convert tweets pandas df into input tensor for logistic regression model
-
+convert tweets pandas df into input tensor for logistic regression model
+    
+# df = pd.read_csv()
 input_tensor = create_input_tensor(tweets)
 
 # load MlLib model
-sameModel = LogisticRegressionModel.load(sc,"target/tmp/pythonLogisticRegressionWithLBFGSModel")
+sameModel = LogisticRegressionModel.load(sc,"hdfs:///user/project/llib_logistic.model")
 # retrieve sentiments from input tensor using model
-
+tweet_f = input_tensor.to_numpy()
+pred = sameModel.predict(tweet_f)
 # create DF to send to dashboard
 
 dashboard_df = pd.DataFrame()
 dashboard_df['tweet'] = tweets['Tweet']
 dashboard_df['ts'] = tweets['ts']
-dashboard_df['positive'] = #model score
-dashboard_df['negative'] = #model score
-
-
+dashboard_df['prediction'] = pred
+print(pred)
 # send created DF to dashboard
-send_df_to_dashboard(df)
+# send_df_to_dashboard(df)
 
 
 
