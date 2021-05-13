@@ -61,10 +61,7 @@ kinesis_client = boto3.client('kinesis',
                                   aws_secret_access_key='Go7F/RA2FJAls5BuH3yYO5EL39sU9+ZXpKB2gXzt')  # fill you aws secret access key
     
 
-
-tweets = kinesis_client.get_records()
 spark.sql("select cast(data as string) from tweets")
-
 
 # Define your function
 getID = UserDefinedFunction(lambda x: parse_tweet(x)[0], StringType())
@@ -77,9 +74,8 @@ tweets = (tweets.withColumn('id', getID(col("data")))
                .withColumn('Tweet', getTweet(col("data")))
          ).toPandas()       # tweets is now a pandas df 
 
-
 convert tweets pandas df into input tensor for logistic regression model
-
+    
 # df = pd.read_csv()
 input_tensor = create_input_tensor(tweets)
 

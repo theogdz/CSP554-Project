@@ -44,7 +44,7 @@ class TweetStreamListener(StreamListener):
         print(status)
 
 
-stream_name = ''  # fill the name of Kinesis data stream you created
+stream_name = 'CSP554'  # fill the name of Kinesis data stream you created
 
 if __name__ == '__main__':
     # create kinesis client connection
