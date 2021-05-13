@@ -49,9 +49,9 @@ stream_name = 'CSP554'  # fill the name of Kinesis data stream you created
 if __name__ == '__main__':
     # create kinesis client connection
     kinesis_client = boto3.client('kinesis', 
-                                  region_name='us-east-2',  # enter the region
-                                  aws_access_key_id='AKIA3QG5W4IX75ORCYOY',  # fill your AWS access key id
-                                  aws_secret_access_key='Go7F/RA2FJAls5BuH3yYO5EL39sU9+ZXpKB2gXzt')  # fill you aws secret access key
+                                  region_name='',  # enter the region
+                                  aws_access_key_id='',  # fill your AWS access key id
+                                  aws_secret_access_key='')  # fill you aws secret access key
     # create instance of the tweepy tweet stream listener
     listener = TweetStreamListener()
     # set twitter keys/tokens
